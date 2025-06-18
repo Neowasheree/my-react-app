@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import classNames from 'classnames';
 
 type Comment = {
   id: number;
@@ -44,18 +45,25 @@ export default function App_tab() {
   const [activeTabId, setActiveTabId] = useState(1);
   const [comments, setComments] = useState<Comment[]>(initialComments); //<>为泛型，表示数据类型
   const [sortType, setSortType] = useState<'latest' | 'likes'>('latest');
+  const [likeEffectId, setLikeEffectId] = useState<number | null>(null);
 
   const handleDelete = (id: number) => {
     setComments(prev => prev.filter(comment => comment.id !== id));
   };
 
   const handleLike = (id: number) => {
-    setComments(prev =>
-      prev.map(comment =>
-        comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment
-      )
-    );
-  };
+  setComments(prev =>
+    prev.map(comment =>
+      comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment
+    )
+  );
+  setLikeEffectId(id);
+
+  // 清除动画
+  setTimeout(() => {
+    setLikeEffectId(null);
+  }, 600);
+};
 
   const sortedComments = [...comments].sort((a, b) => {
     if (sortType === 'latest') {
@@ -87,7 +95,7 @@ export default function App_tab() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={activeTabId === tab.id ? 'tab active' : 'tab'}
+              className={classNames('tab', { active: activeTabId === tab.id })}
               onClick={() => setActiveTabId(tab.id)}
             >
               {tab.label}
@@ -117,8 +125,20 @@ export default function App_tab() {
                   </div>
                   <div className="comment-meta">
                     <span>{new Date(c.createdAt).toLocaleString()}</span>
-                    <span>👍 {c.likes}</span>
-                    <button onClick={() => handleLike(c.id)}>+1</button>
+                    {/* 点赞区域：点击整个 emoji + 数字可触发点赞 */}
+                    <span
+                      style={{ cursor: 'pointer', position: 'relative' }}
+                      onClick={() => handleLike(c.id)}
+                      title="点赞"
+                    >
+                      👍 {c.likes}
+                      {likeEffectId === c.id && (
+                        <span className="like-animation" style={{ top: -10, right: -20, position: 'absolute' }}>
+                          +1
+                        </span>
+                      )}
+                    </span>
+
                     <button className="del-btn" onClick={() => handleDelete(c.id)}>删除</button>
                   </div>
                 </li>
