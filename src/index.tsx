@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App_Comment';
+import App from './App_评论发布与清空';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
